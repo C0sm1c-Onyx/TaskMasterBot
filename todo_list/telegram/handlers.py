@@ -42,12 +42,22 @@ class GetTaskToShowComment(StatesGroup):
 async def cmd_start(message: Message):
     username = message.from_user.username
     async with aiohttp.ClientSession() as session:
-        async with session.get(f'http://127.0.0.1:8000/api/v1/get_user/{username}/') as response:
+        async with session.get(
+            f'http://127.0.0.1:8000/api/v1/get_user/{username}/',
+            headers={
+                'User-Agent': 'TelegramBot'
+        }) as response:
             data = await response.json()
             if data['tg_user']:
                 print(username, '-', 'exists')
             else:
-                async with session.post('http://127.0.0.1:8000/api/v1/create_tg_user/', data={'username_id': username}) as response:
+                async with session.post(
+                        'http://127.0.0.1:8000/api/v1/create_tg_user/',
+                        data={'username_id': username},
+                        headers={
+                            'User-Agent': 'TelegramBot'
+                        }
+                ) as response:
                     print(response.status)
 
     await message.answer('''Привет! Я твой помощник по управлению задачами.\nС помощью меня ты сможешь создавать задачи, добавлять к ним комментарии и получать уведомления на электронную почту, когда приходит время их выполнения.''',
@@ -58,7 +68,12 @@ async def cmd_start(message: Message):
 async def cmd_get_tasks(message: Message):
     username = message.from_user.username
     async with aiohttp.ClientSession() as session:
-        async with session.get(f'http://127.0.0.1:8000/api/v1/task-list/{username}/') as response:
+        async with session.get(
+            f'http://127.0.0.1:8000/api/v1/task-list/{username}/',
+            headers={
+                'User-Agent': 'TelegramBot'
+            }
+        ) as response:
             print(response.status)
             data = await response.json()
             await message.answer(str(data))
@@ -109,11 +124,16 @@ async def add_task_on_db(
 
     data = await state.get_data()
 
-    await message.answer(str(data))
     async with aiohttp.ClientSession() as session:
         async with session.post(
             'http://127.0.0.1:8000/api/v1/create-category/',
-            data={'category_id': '1', 'category_name': data['category']}
+            data={
+                'category_id': '1',
+                'category_name': data['category']
+            },
+            headers={
+                'User-Agent': 'TelegramBot'
+            }
         ) as response:
             print(response.status)
 
@@ -128,10 +148,15 @@ async def add_task_on_db(
                     "task_description": data['task_description'],
                     "start_date": data['start_date'],
                     "task_category_id": category_obj.category_id
+                },
+                headers={
+                    'User-Agent': 'TelegramBot'
                 }
             ) as response:
                 print(response.status)
+                await message.answer('Задача добавлена! Уведомлю когда наступит день исполнения')
                 await state.clear()
+
 
 
 @router.message(F.text == 'Добавить комментарий к задаче')
@@ -163,13 +188,14 @@ async def create_comment_on_db(message: Message, state: FSMContext):
                 "comment": data['comment'],
                 "user_id": username,
                 "task_id": data['task_id']
+            },
+            headers={
+                'User-Agent': 'TelegramBot'
             }
         ) as response:
             print(response.status)
 
-            data = await response.json()
-
-            await message.answer(str(data))
+            await message.answer('Комментарий к задаче добавлен')
             await state.clear()
 
 
@@ -187,7 +213,10 @@ async def get_task_comment(message: Message, state: FSMContext):
 
     async with aiohttp.ClientSession() as session:
         async with session.get(
-            f'http://127.0.0.1:8000/api/v1/list-comment/{abs(int(data["task_id"]))}/'
+            f'http://127.0.0.1:8000/api/v1/list-comment/{abs(int(data["task_id"]))}/',
+            headers={
+                'User-Agent': 'TelegramBot'
+            }
         ) as response:
             print(response.status)
 

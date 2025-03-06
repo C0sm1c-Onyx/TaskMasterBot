@@ -9,6 +9,7 @@ from .serializers import *
 
 class TGbotUserAPICreateView(generics.CreateAPIView):
     serializer_class = TGbotUserSerializer
+    permission_classes = (TelegramPermission,)
 
     @method_decorator(ratelimit(key='ip', rate='15/m', method='POST'))
     def post(self, request, *args, **kwargs):
@@ -26,6 +27,7 @@ class TGbotUserAPIList(generics.ListAPIView):
 
 class CommentAPICreateView(generics.CreateAPIView):
     serializer_class = CommentSerializer
+    permission_classes = (TelegramPermission,)
 
     @method_decorator(ratelimit(key='ip', rate='15/m', method='POST'))
     def post(self, request, task_id, *args, **kwargs):
@@ -33,7 +35,7 @@ class CommentAPICreateView(generics.CreateAPIView):
 
 
 class CommentAPIList(generics.ListAPIView):
-    permission_classes = (TelegramPermission, )
+    permission_classes = (TelegramPermission,)
 
     @method_decorator(ratelimit(key='ip', rate='15/m', method='GET'))
     def get(self, request, task_id, *args, **kwargs):
