@@ -1,19 +1,37 @@
-import smtplib
 import os
 from celery import Celery
-from dotenv import load_dotenv
+from celery.schedules import crontab
+from celery.utils.log import get_task_logger
+
+
+logger = get_task_logger(__name__)
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'todo_list.settings')
+
+import django
+django.setup()
+
+app = Celery("notification")
+
+app.config_from_object('django.conf:settings', namespace='CELERY')
+
+app.autodiscover_tasks()
+
+app.conf.update(
+    timezone='Europe/Moscow',
+    enable_utc=True,
+)
+
+
+import smtplib
+import os
+
 from datetime import datetime
 
-from users.models import User
+from auth_users.models import AuthUser
 from core.models import Task
 
 
-load_dotenv()
-
-app = Celery('notifications', broker=os.getenv('EMAIL_HOST_USER'))
-
-
-@app.task
 def send_message_to_email(subject, body, recipient):
     server = smtplib.SMTP('smtp.yandex.ru', 465)
     server.starttls()
@@ -25,19 +43,18 @@ def send_message_to_email(subject, body, recipient):
     server.quit()
 
 
-@app.task
 def get_started_task(model_user, model_task):
     email_task = {}
 
     tasks = model_task.objects.all()
     for task in tasks:
-        if not task.is_check:
+        if task.is_check:
             continue
 
         start_date = task.start_date
         current_date = datetime.now().date()
 
-        if start_date == current_date:
+        if str(start_date) == str(current_date):
             user = model_user.objects.get(user_id=task.user)
             email = user.email
 
@@ -53,8 +70,8 @@ def get_started_task(model_user, model_task):
 
 
 @app.task
-def generate_and_send_message(model_user, model_task):
-    email_task = get_started_task(model_user, model_task)
+def generate_and_send_message():
+    email_task = get_started_task(AuthUser, Task)
 
     body = "Пришло время к выполнению поставленных задач! :)"
 
@@ -67,4 +84,9 @@ def generate_and_send_message(model_user, model_task):
         send_message_to_email(subject, body, email)
 
 
-generate_and_send_message.delay(User, Task)
+app.conf.beat_schedule = {
+    'generate_and_send_message': {
+        'task': 'notification.generate_and_send_message',
+        'schedule': crontab(hour='5', minute='21'),
+    }
+}

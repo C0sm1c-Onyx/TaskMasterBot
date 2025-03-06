@@ -1,7 +1,7 @@
 from django.db import models
-from users.models import User
+from auth_users.models import AuthUser
 
-from .utils import generate_custom_id
+from utils import generate_custom_id
 
 
 class Category(models.Model):
@@ -18,7 +18,7 @@ class Task(models.Model):
     task_title = models.CharField(max_length=50)
     task_description = models.TextField(max_length=1000)
     task_category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(AuthUser, on_delete=models.CASCADE)
     start_date = models.DateField()
     is_check = models.BooleanField(default=False)
 

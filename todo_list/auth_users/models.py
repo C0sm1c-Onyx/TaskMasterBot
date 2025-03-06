@@ -1,12 +1,11 @@
 from django.db import models
-from django.contrib.auth.base_user import AbstractBaseUser
-from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth.models import AbstractUser
 
-from users.managers import UserManager
+from auth_users.managers import UserManager
 
 
-class User(AbstractBaseUser, PermissionRequiredMixin):
-    username = models.CharField('username', max_length=16)
+class AuthUser(AbstractUser):
+    username = models.CharField('username', max_length=16, unique=True)
     email = models.CharField('email', max_length=30, unique=True)
     date_joined = models.DateTimeField('date_joined', auto_now_add=True)
     is_active = models.BooleanField('is_active', default=False)
@@ -18,7 +17,9 @@ class User(AbstractBaseUser, PermissionRequiredMixin):
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email']
 
-    class Meta:
-        verbose_name = ('users',)
-        verbose_name_plural = ('users',)
+    class Meta(AbstractUser.Meta):
+        verbose_name = 'auth_user'
+        verbose_name_plural = 'auth_users'
         unique_together = ('username', 'email')
+
+        swappable = "AUTH_USER_MODEL"

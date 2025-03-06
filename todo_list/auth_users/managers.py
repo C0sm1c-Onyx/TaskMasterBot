@@ -5,7 +5,7 @@ class UserManager(BaseUserManager):
     use_in_migrations = True
 
     def _create_user(self, username=None, email=None, password=None, **kwargs):
-        if not username and not email:
+        if not username or not email:
             raise ValueError('The given username and phone must be set')
 
         if kwargs.get('is_superuser'):
@@ -20,11 +20,13 @@ class UserManager(BaseUserManager):
 
     def create_user(self, username, email, password=None, **kwargs):
         kwargs.setdefault('is_superuser', False)
+        kwargs.setdefault('is_active', False)
+
         return self._create_user(
             username=username, phone=email, password=password, **kwargs
         )
 
-    def create_super_user(self, username, password, **kwargs):
+    def create_superuser(self, username, password, **kwargs):
         kwargs.setdefault('is_superuser', True)
         kwargs.setdefault('is_staff', True)
         kwargs.setdefault('is_active', True)

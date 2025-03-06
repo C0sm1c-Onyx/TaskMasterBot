@@ -1,9 +1,9 @@
 from django.contrib import admin
 
 from .models import *
-from users.models import User
+from auth_users.models import AuthUser
 
 
 admin.site.register(Task)
 admin.site.register(Category)
-admin.site.register(User)
+admin.site.register(AuthUser)
