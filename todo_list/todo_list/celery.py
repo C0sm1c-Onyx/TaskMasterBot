@@ -29,7 +29,6 @@ import os
 from datetime import datetime
 
 from auth_users.models import AuthUser
-from core.models import Task
 
 
 def send_message_to_email(subject, body, recipient):
@@ -71,6 +70,8 @@ def get_started_task(model_user, model_task):
 
 @app.task
 def generate_and_send_message():
+    from core.models import Task
+
     email_task = get_started_task(AuthUser, Task)
 
     body = "Пришло время к выполнению поставленных задач! :)"

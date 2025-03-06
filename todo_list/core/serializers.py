@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Category, Task
+from core.models import Category, Task
 from auth_users.models import AuthUser
 
 
@@ -16,9 +16,9 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class TaskSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
-    task_category = CategorySerializer(read_only=True)
+    task_category_id = serializers.CharField(required=True)
+    user_id = serializers.CharField(required=True)
 
     class Meta:
         model = Task
-        fields = ('user', 'task_id', 'task_title', 'task_description', 'start_date', 'task_category')
+        fields = ('user_id', 'task_id', 'task_title', 'task_description', 'start_date', 'task_category_id')

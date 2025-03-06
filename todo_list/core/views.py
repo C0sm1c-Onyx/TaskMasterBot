@@ -1,24 +1,24 @@
 from rest_framework import generics
 from rest_framework.views import Response
-from rest_framework.permissions import IsAuthenticated
 from django.utils.decorators import method_decorator
 from django_ratelimit.decorators import ratelimit
 
+from telegram.permissions import TelegramPermission
 from .serializers import *
 from .models import *
 
 
 class TaskAPIList(generics.ListAPIView):
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (TelegramPermission,)
 
     @method_decorator(ratelimit(key='ip', rate='15/m', method='GET'))
-    def get(self, request, *args, **kwargs):
-        data = Task.objects.all()
+    def get(self, request, user_id, *args, **kwargs):
+        data = Task.objects.filter(user=user_id)
         return Response({'Tasks': TaskSerializer(data, many=True).data})
 
 
 class CategoryAPIList(generics.ListAPIView):
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (TelegramPermission,)
 
     @method_decorator(ratelimit(key='ip', rate='15/m', method='GET'))
     def get(self, request, *args, **kwargs):
@@ -27,7 +27,7 @@ class CategoryAPIList(generics.ListAPIView):
 
 
 class TaskAPIDestroyView(generics.DestroyAPIView, ):
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (TelegramPermission,)
     serializer_class = TaskSerializer
 
     @method_decorator(ratelimit(key='ip', rate='15/m', method='DELETE'))
@@ -36,7 +36,7 @@ class TaskAPIDestroyView(generics.DestroyAPIView, ):
 
 
 class CategoryAPIDestroyView(generics.DestroyAPIView):
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (TelegramPermission,)
     serializer_class = CategorySerializer
 
     @method_decorator(ratelimit(key='ip', rate='15/m', method='DELETE'))
@@ -45,7 +45,7 @@ class CategoryAPIDestroyView(generics.DestroyAPIView):
 
 
 class TaskAPICreateView(generics.CreateAPIView):
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (TelegramPermission,)
     serializer_class = TaskSerializer
 
     @method_decorator(ratelimit(key='ip', rate='15/m', method='POST'))
@@ -54,7 +54,7 @@ class TaskAPICreateView(generics.CreateAPIView):
 
 
 class CategoryAPICreateView(generics.CreateAPIView):
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (TelegramPermission,)
     serializer_class = CategorySerializer
 
     @method_decorator(ratelimit(key='ip', rate='15/m', method='POST'))
@@ -63,7 +63,7 @@ class CategoryAPICreateView(generics.CreateAPIView):
 
 
 class TaskAPIUpdateView(generics.UpdateAPIView):
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (TelegramPermission,)
     serializer_class = TaskSerializer
 
     @method_decorator(ratelimit(key='ip', rate='15/m', method='PUT'))
@@ -76,7 +76,7 @@ class TaskAPIUpdateView(generics.UpdateAPIView):
 
 
 class CategoryAPIUpdateView(generics.UpdateAPIView):
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (TelegramPermission,)
     serializer_class = CategorySerializer
 
     @method_decorator(ratelimit(key='ip', rate='15/m', method='PUT'))

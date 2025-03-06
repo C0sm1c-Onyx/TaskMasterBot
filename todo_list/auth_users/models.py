@@ -23,3 +23,4 @@ class AuthUser(AbstractUser):
         unique_together = ('username', 'email')
 
         swappable = "AUTH_USER_MODEL"
+

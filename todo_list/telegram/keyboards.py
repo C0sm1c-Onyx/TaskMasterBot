@@ -1,5 +1,8 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
+import os
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'todo_list.settings')
+
 
 main_kb = ReplyKeyboardMarkup(
     keyboard=[

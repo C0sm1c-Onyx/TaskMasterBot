@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'auth_users.apps.AuthUsersConfig',
     'core.apps.CoreConfig',
+    'telegram.apps.TelegramConfig',
     'djoser',
 ]
 
