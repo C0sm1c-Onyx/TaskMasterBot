@@ -31,7 +31,7 @@ app.conf.update(
 app.conf.beat_schedule = {
     'generate_and_send_message': {
         'task': 'todo_list.celery.generate_and_send_message',
-        'schedule': crontab(hour='8', minute='0'),
+        'schedule': crontab(hour='15', minute='40'),
     }
 }
 
@@ -47,9 +47,6 @@ def get_started_task(model_user, model_task):
 
     tasks = model_task.objects.all()
     for task in tasks:
-        if task.is_check:
-            continue
-
         start_date = task.start_date
         current_date = datetime.now().date()
 
@@ -61,9 +58,6 @@ def get_started_task(model_user, model_task):
                 user_task[chat_id].append(task)
             else:
                 user_task[chat_id] = [task]
-
-            task.is_check = True
-            task.save()
 
     return user_task
 
