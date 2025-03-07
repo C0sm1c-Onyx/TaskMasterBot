@@ -5,6 +5,7 @@ from utils import generate_custom_id
 
 class TGbotUser(models.Model):
     username_id = models.CharField(primary_key=True, unique=True, max_length=100)
+    chat_id = models.CharField(max_length=1000)
 
 
 class Category(models.Model):
@@ -24,6 +25,7 @@ class Task(models.Model):
     user = models.ForeignKey(TGbotUser, on_delete=models.CASCADE)
     start_date = models.DateField()
     is_check = models.BooleanField(default=False)
+    create_data = models.DateField(auto_now_add=True)
 
     def save(self, **kwargs):
         self.task_id = generate_custom_id(self.task_title)

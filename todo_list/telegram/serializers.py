@@ -6,7 +6,7 @@ from core.models import TGbotUser, Comment
 class TGbotUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = TGbotUser
-        fields = ('username_id',)
+        fields = ('username_id', 'chat_id')
 
 
 class CommentSerializer(serializers.ModelSerializer):

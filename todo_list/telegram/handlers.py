@@ -11,13 +11,22 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'todo_list.settings')
 
 from telegram.keyboards import main_kb
 from core.models import Category
+from utils import AsyncIterator
+
 
 router = Router()
 
 
 @sync_to_async
-def get_objects_db(key_category):
+def get_category_by_name(key_category):
     category_obg = Category.objects.get(category_name=key_category)
+
+    return category_obg
+
+
+@sync_to_async
+def get_category_by_id(id):
+    category_obg = Category.objects.get(category_id=id)
 
     return category_obg
 
@@ -41,6 +50,8 @@ class GetTaskToShowComment(StatesGroup):
 @router.message(CommandStart())
 async def cmd_start(message: Message):
     username = message.from_user.username
+    chat_id = message.chat.id
+
     async with aiohttp.ClientSession() as session:
         async with session.get(
             f'http://127.0.0.1:8000/api/v1/get_user/{username}/',
@@ -53,19 +64,20 @@ async def cmd_start(message: Message):
             else:
                 async with session.post(
                         'http://127.0.0.1:8000/api/v1/create_tg_user/',
-                        data={'username_id': username},
+                        data={'username_id': username, 'chat_id': chat_id},
                         headers={
                             'User-Agent': 'TelegramBot'
                         }
                 ) as response:
                     print(response.status)
 
-    await message.answer('''Привет! Я твой помощник по управлению задачами.\nС помощью меня ты сможешь создавать задачи, добавлять к ним комментарии и получать уведомления на электронную почту, когда приходит время их выполнения.''',
+    await message.answer('''Привет! Я твой помощник по управлению задачами.\nС помощью меня ты сможешь создавать задачи, добавлять к ним комментарии и получать уведомления, когда приходит время выполнения задачи.''',
                          reply_markup=main_kb)
 
 
 @router.message(F.text == 'Список задач')
 async def cmd_get_tasks(message: Message):
+    task_list = ''
     username = message.from_user.username
     async with aiohttp.ClientSession() as session:
         async with session.get(
@@ -76,7 +88,21 @@ async def cmd_get_tasks(message: Message):
         ) as response:
             print(response.status)
             data = await response.json()
-            await message.answer(str(data))
+
+            async_list = AsyncIterator(data['Tasks'])
+
+            i = 1
+            async for task in async_list:
+                category = await get_category_by_id(task['task_category_id'])
+                print(task)
+                row = f"""Задача {i}:\nid: {task['task_id']}\nНазвание: {task['task_title']}\nОписание: {task['task_description']}\nКатегория: {category.category_name}\nДата начала исполнения: {task['start_date']}\nДата создания: {task['create_data']}\n\n"""
+                task_list += row
+                i += 1
+
+            if task_list:
+                await message.answer(task_list)
+            else:
+                await message.answer('У вас нет задач')
 
 
 @router.message(F.text == 'Добавить задачу')
@@ -137,7 +163,7 @@ async def add_task_on_db(
         ) as response:
             print(response.status)
 
-            category_obj = await get_objects_db(data['category'])
+            category_obj = await get_category_by_name(data['category'])
 
             async with session.post(
                 'http://127.0.0.1:8000/api/v1/create-task/',
@@ -156,7 +182,6 @@ async def add_task_on_db(
                 print(response.status)
                 await message.answer('Задача добавлена! Уведомлю когда наступит день исполнения')
                 await state.clear()
-
 
 
 @router.message(F.text == 'Добавить комментарий к задаче')
@@ -186,7 +211,7 @@ async def create_comment_on_db(message: Message, state: FSMContext):
             data={
                 "comment_id": "1",
                 "comment": data['comment'],
-                "user_id": username,
+                "username_id": username,
                 "task_id": data['task_id']
             },
             headers={
@@ -212,6 +237,7 @@ async def get_task_comment(message: Message, state: FSMContext):
     data = await state.get_data()
 
     async with aiohttp.ClientSession() as session:
+        comment_list = ''
         async with session.get(
             f'http://127.0.0.1:8000/api/v1/list-comment/{abs(int(data["task_id"]))}/',
             headers={
@@ -220,7 +246,18 @@ async def get_task_comment(message: Message, state: FSMContext):
         ) as response:
             print(response.status)
 
-            data = await response.json()
+            json_data = await response.json()
 
-            await message.answer(str(data))
+            async_list = AsyncIterator(json_data['comments'])
+            i = 1
+            async for comment in async_list:
+                row = f'Комментарий {i}:\n{comment["comment"]}\n\n'
+                comment_list += row
+                i += 1
+
+            if comment_list:
+                await message.answer(f"Комментарии к задаче {data['task_id']}:\n\n{comment_list}")
+            else:
+                await message.answer(f'Комментариев к задаче {data["task_id"]} нету')
+
             await state.clear()

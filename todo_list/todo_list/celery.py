@@ -1,7 +1,13 @@
-import os
 from celery import Celery
 from celery.schedules import crontab
 from celery.utils.log import get_task_logger
+import os
+from datetime import datetime
+from dotenv import load_dotenv
+from notifiers import get_notifier
+
+
+load_dotenv()
 
 
 logger = get_task_logger(__name__)
@@ -22,28 +28,22 @@ app.conf.update(
     enable_utc=True,
 )
 
+app.conf.beat_schedule = {
+    'generate_and_send_message': {
+        'task': 'todo_list.celery.generate_and_send_message',
+        'schedule': crontab(hour='8', minute='0'),
+    }
+}
 
-import smtplib
-import os
 
-from datetime import datetime
-
-from auth_users.models import AuthUser
-
-
-def send_message_to_email(subject, body, recipient):
-    server = smtplib.SMTP('smtp.yandex.ru', 465)
-    server.starttls()
-    server.login(os.getenv('EMAIL_HOST_USER'), os.getenv('EMAIL_HOST_PASSWORD'))
-
-    message = f"Subject: {subject}\n\n{body}"
-
-    server.sendmail(os.getenv('EMAIL_HOST_USER'), recipient, message)
-    server.quit()
+def send_message_to_tg(subject, body, recipient):
+    token = os.getenv('TELEGRAM_BOT_TOKEN')
+    telegram = get_notifier('telegram')
+    telegram.notify(token=token, chat_id=recipient, message=f"{body}\n{subject}")
 
 
 def get_started_task(model_user, model_task):
-    email_task = {}
+    user_task = {}
 
     tasks = model_task.objects.all()
     for task in tasks:
@@ -54,40 +54,32 @@ def get_started_task(model_user, model_task):
         current_date = datetime.now().date()
 
         if str(start_date) == str(current_date):
-            user = model_user.objects.get(user_id=task.user)
-            email = user.email
+            user = model_user.objects.get(username_id=task.user_id)
+            chat_id = user.chat_id
 
-            if email in email_task:
-                email_task[email].append(task)
+            if user in user_task:
+                user_task[chat_id].append(task)
             else:
-                email_task[email] = [task]
+                user_task[chat_id] = [task]
 
             task.is_check = True
             task.save()
 
-    return email_task
+    return user_task
 
 
 @app.task
 def generate_and_send_message():
-    from core.models import Task
+    from core.models import Task, TGbotUser
 
-    email_task = get_started_task(AuthUser, Task)
+    user_task = get_started_task(TGbotUser, Task)
 
     body = "Пришло время к выполнению поставленных задач! :)"
 
-    for email in email_task:
+    for chat_id in user_task:
         subject = "Твои задачи на сегодня:\n\n"
 
-        tasks = email_task[email]
-        subject += '\n\n'.join([f"{task.title}\n{task.description}" for task in tasks])
+        tasks = user_task[chat_id]
+        subject += '\n\n'.join([f"Название: {task.task_title}\nОписание: {task.task_description}" for task in tasks])
 
-        send_message_to_email(subject, body, email)
-
-
-app.conf.beat_schedule = {
-    'generate_and_send_message': {
-        'task': 'notification.generate_and_send_message',
-        'schedule': crontab(hour='5', minute='21'),
-    }
-}
+        send_message_to_tg(subject, body, chat_id)
