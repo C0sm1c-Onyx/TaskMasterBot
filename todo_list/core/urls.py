@@ -1,5 +1,10 @@
 from django.urls import path
-from .views import *
+from core.views import (
+    TaskAPICreateView, TaskAPIUpdateView, TaskAPIDestroyView,
+    CategoryAPIDestroyView, CategoryAPICreateView, CategoryAPIList,
+    CategoryAPIUpdateView, TaskAPIList, TGbotUserAPICreateView, TGbotUserAPIList,
+    CommentAPICreateView, CommentAPIList
+)
 
 
 urlpatterns = [
@@ -11,4 +16,8 @@ urlpatterns = [
     path('api/v1/create-category/', CategoryAPICreateView.as_view()),
     path('api/v1/update-task/<int:pk>/', TaskAPIUpdateView.as_view()),
     path('api/v1/update-category/<int:pk>/', CategoryAPIUpdateView.as_view()),
+    path('api/v1/create_tg_user/', TGbotUserAPICreateView.as_view()),
+    path('api/v1/get_user/<str:username>/', TGbotUserAPIList.as_view()),
+    path('api/v1/create_comment/<int:task_id>/', CommentAPICreateView.as_view()),
+    path('api/v1/list-comment/<int:task_id>/', CommentAPIList.as_view())
 ]

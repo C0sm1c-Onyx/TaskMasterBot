@@ -1,34 +1,15 @@
 import aiohttp
 from aiogram import Router, F
 from aiogram.types import Message
-from aiogram.filters import Command, CommandStart
+from aiogram.filters import CommandStart
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
-from asgiref.sync import sync_to_async
 
-import os
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'todo_list.settings')
-
-from telegram.keyboards import main_kb
-from core.models import Category
-from utils import AsyncIterator
+from keyboards import main_kb
+from utils import get_category_by_name, get_category_by_id, AsyncIterator
 
 
 router = Router()
-
-
-@sync_to_async
-def get_category_by_name(key_category):
-    category_obg = Category.objects.get(category_name=key_category)
-
-    return category_obg
-
-
-@sync_to_async
-def get_category_by_id(id):
-    category_obg = Category.objects.get(category_id=id)
-
-    return category_obg
 
 
 class AddTask(StatesGroup):
@@ -54,7 +35,7 @@ async def cmd_start(message: Message):
 
     async with aiohttp.ClientSession() as session:
         async with session.get(
-            f'http://127.0.0.1:8000/api/v1/get_user/{username}/',
+            f'http://taskmasterbot:8000/api/v1/get_user/{username}/',
             headers={
                 'User-Agent': 'TelegramBot'
         }) as response:
@@ -63,7 +44,7 @@ async def cmd_start(message: Message):
                 print(username, '-', 'exists')
             else:
                 async with session.post(
-                        'http://127.0.0.1:8000/api/v1/create_tg_user/',
+                        'http://taskmasterbot:8000/api/v1/create_tg_user/',
                         data={'username_id': username, 'chat_id': chat_id},
                         headers={
                             'User-Agent': 'TelegramBot'
@@ -81,7 +62,7 @@ async def cmd_get_tasks(message: Message):
     username = message.from_user.username
     async with aiohttp.ClientSession() as session:
         async with session.get(
-            f'http://127.0.0.1:8000/api/v1/task-list/{username}/',
+            f'http://taskmasterbot:8000/api/v1/task-list/{username}/',
             headers={
                 'User-Agent': 'TelegramBot'
             }
@@ -152,7 +133,7 @@ async def add_task_on_db(
 
     async with aiohttp.ClientSession() as session:
         async with session.post(
-            'http://127.0.0.1:8000/api/v1/create-category/',
+            'http://taskmasterbot:8000/api/v1/create-category/',
             data={
                 'category_id': '1',
                 'category_name': data['category']
@@ -166,7 +147,7 @@ async def add_task_on_db(
             category_obj = await get_category_by_name(data['category'])
 
             async with session.post(
-                'http://127.0.0.1:8000/api/v1/create-task/',
+                'http://taskmasterbot:8000/api/v1/create-task/',
                 data={
                     "user_id": username,
                     "task_id": "1",
@@ -207,7 +188,7 @@ async def create_comment_on_db(message: Message, state: FSMContext):
 
     async with aiohttp.ClientSession() as session:
         async with session.post(
-            f'http://127.0.0.1:8000/api/v1/create_comment/{abs(int(data["task_id"]))}/',
+            f'http://taskmasterbot:8000/api/v1/create_comment/{abs(int(data["task_id"]))}/',
             data={
                 "comment_id": "1",
                 "comment": data['comment'],
@@ -239,7 +220,7 @@ async def get_task_comment(message: Message, state: FSMContext):
     async with aiohttp.ClientSession() as session:
         comment_list = ''
         async with session.get(
-            f'http://127.0.0.1:8000/api/v1/list-comment/{abs(int(data["task_id"]))}/',
+            f'http://taskmasterbot:8000/api/v1/list-comment/{abs(int(data["task_id"]))}/',
             headers={
                 'User-Agent': 'TelegramBot'
             }

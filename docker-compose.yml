@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  taskmasterbot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8000:8000
+    working_dir: /usr/src/app/todo_list
+    environment:
+      DB_HOST: postgres
+      DB_NAME: ${POSTGRES_DB_NAME}
+      DB_USER: ${POSTGRES_USER_NAME}
+      DB_PASS: ${POSTGRES_PASSWORD}
+    volumes:
+      - .:/usr/src/app
+    command: python manage.py runserver 0.0.0.0:8000
+    depends_on:
+      - postgres
+      - redis
+      - celery_beat
+      - celery_worker
+
+  redis:
+    image: redis:latest
+    hostname: redis
+    ports:
+      - "6379:6379"
+
+  migrations:
+    build:
+      context: .
+    image: migration-django
+    working_dir: /usr/src/app/todo_list
+    command: python manage.py migrate
+    volumes:
+      - .:/usr/src/app
+    depends_on:
+      - postgres
+      - taskmasterbot
+
+  postgres:
+    image: postgres:14.6-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB_NAME}
+      POSTGRES_USER: ${POSTGRES_USER_NAME}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+  telegram_bot:
+    build:
+      context: .
+    working_dir: /usr/src/app/todo_list/core
+    command: python tgbot.py
+    depends_on:
+      - taskmasterbot
+
+  celery_worker:
+    build:
+      context: .
+    hostname: celery_worker
+    working_dir: /usr/src/app/todo_list
+    command: celery -A todo_list worker -P gevent
+    volumes:
+      - .:/usr/src/app
+    links:
+      - redis
+    depends_on:
+      - redis
+
+    restart: always
+
+  celery_beat:
+    build:
+      context: .
+    hostname: celery_beat
+    working_dir: /usr/src/app/todo_list
+    command: celery -A todo_list beat -l INFO
+    volumes:
+      - .:/usr/src/app
+    links:
+      - redis
+    depends_on:
+      - redis
+      - celery_worker
+
+    restart: always

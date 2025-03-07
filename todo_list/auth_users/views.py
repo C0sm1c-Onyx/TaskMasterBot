@@ -3,9 +3,9 @@ from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.tokens import default_token_generator
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import CustomTokenObtainPairSerializer
+from auth_users.serializers import CustomTokenObtainPairSerializer
 
-from .models import AuthUser
+from auth_users.models import AuthUser
 
 
 def activate_user_email(request, uidb64=None, token=None):

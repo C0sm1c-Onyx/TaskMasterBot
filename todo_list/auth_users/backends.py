@@ -1,4 +1,4 @@
-from .models import AuthUser
+from auth_users.models import AuthUser
 from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
 

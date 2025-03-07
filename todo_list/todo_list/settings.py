@@ -29,9 +29,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-$73vmla$nu)p=#b!lc+3d14r8-1tu7)+1yd_cdm&jw=nsc&jam'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = ['127.0.0.1', 'taskmasterbot']
 
 
 # Application definition
@@ -45,9 +45,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt',
-    'auth_users.apps.AuthUsersConfig',
     'core.apps.CoreConfig',
-    'telegram.apps.TelegramConfig',
+    'auth_users.apps.AuthUsersConfig',
     'djoser',
 ]
 
@@ -98,7 +97,7 @@ DATABASES = {
         'NAME': os.getenv('POSTGRES_DB_NAME'),
         'USER': os.getenv('POSTGRES_USER_NAME'),
         'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-        'HOST': 'localhost',
+        'HOST': 'postgres',
         'PORT': 5432,
     }
 }
@@ -230,6 +229,6 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
-CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
-CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/0"
+CELERY_BROKER_URL = "redis://redis:6379/0"
+CELERY_RESULT_BACKEND = "redis://redis:6379/0"
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True

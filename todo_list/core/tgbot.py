@@ -1,15 +1,9 @@
 import asyncio
+import os
 from aiogram import Bot, Dispatcher
 from dotenv import load_dotenv
 
-import os
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'todo_list.settings')
-
-import django
-django.setup()
-
-from telegram.handlers import router
-
+from handlers import router
 
 load_dotenv()
 

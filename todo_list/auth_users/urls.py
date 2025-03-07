@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import *
+from auth_users.views import activate_user_email
 
 
 urlpatterns = [

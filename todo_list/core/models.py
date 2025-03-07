@@ -1,6 +1,6 @@
 from django.db import models
 
-from utils import generate_custom_id
+from core.utils import generate_custom_id
 
 
 class TGbotUser(models.Model):

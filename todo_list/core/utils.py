@@ -1,4 +1,5 @@
 from datetime import datetime
+from asgiref.sync import sync_to_async
 
 
 def generate_custom_id(string: str) -> str:
@@ -21,3 +22,19 @@ class AsyncIterator:
         value = self.data[self.index]
         self.index += 1
         return value
+
+
+@sync_to_async
+def get_category_by_name(key_category):
+    from models import Category
+    category_obg = Category.objects.get(category_name=key_category)
+
+    return category_obg
+
+
+@sync_to_async
+def get_category_by_id(id):
+    from models import Category
+    category_obg = Category.objects.get(category_id=id)
+
+    return category_obg
