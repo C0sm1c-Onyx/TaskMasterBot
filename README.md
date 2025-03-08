@@ -19,7 +19,7 @@ TaskMasterBot - это система управления задачами с T
 
 1. Клонируйте репозиторий:
 ```bash
-git clone [<repository-url>](https://github.com/C0sm1c-Onyx/TaskMasterBot.git)
+git clone https://github.com/C0sm1c-Onyx/TaskMasterBot.git
 cd TaskMasterBot
 ```
 
@@ -62,7 +62,7 @@ docker-compose up --build
 - Просмотр комментариев
 - Уведомления о сроках выполнения
 
-Ссылка на бота: [@your_bot_name](https://t.me/TodoListMasterBot)
+Ссылка на бота: https://t.me/TodoListMasterBot
 
 ### Celery Tasks
 
