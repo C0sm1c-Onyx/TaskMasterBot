@@ -69,8 +69,6 @@ docker-compose up --build
 - Проверка сроков начала исполнения задач
 - Отправка уведомлений в Telegram о приближающихся дедлайнах
 
-## REST API Documentation
-
 ### Аутентификация
 
 #### Создание пользователя
@@ -93,38 +91,5 @@ Content-Type: application/json
 {
     "username": "user",
     "password": "password"
-}
-```
-
-### Задачи
-
-#### Список задач пользователя
-```http
-GET /api/v1/task-list/{username}/
-```
-
-#### Создание задачи
-```http
-POST /api/v1/create-task/
-Content-Type: application/json
-
-{
-    "user_id": "username",
-    "task_title": "Title",
-    "task_description": "Description",
-    "start_date": "2025-03-06",
-    "task_category_id": "category_id"
-}
-```
-
-### Категории
-
-#### Создание категории
-```http
-POST /api/v1/create-category/
-Content-Type: application/json
-
-{
-    "category_name": "Category Name"
 }
 ```
