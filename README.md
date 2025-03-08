@@ -4,8 +4,8 @@ TaskMasterBot - это система управления задачами с T
 
 ## Технологический стек
 
-- Python 3.13
-- Django 5.1
+- Python
+- Django
 - Django REST Framework
 - PostgreSQL
 - Redis
@@ -56,14 +56,11 @@ git clone <repository-url>
 cd TaskMasterBot
 ```
 
-2. Создайте файл .env в корневой директории проекта:
+2. Отредактируйте файл .env в корневой директории проекта:
 ```env
 POSTGRES_DB_NAME=your_db_name
 POSTGRES_USER_NAME=your_db_user
 POSTGRES_PASSWORD=your_db_password
-TELEGRAM_BOT_TOKEN=your_bot_token
-EMAIL_HOST_USER=your_email
-EMAIL_HOST_PASSWORD=your_email_password
 ```
 
 3. Запустите проект:
@@ -87,7 +84,7 @@ docker-compose up --build
 Управление пользователями и аутентификацией:
 
 - Кастомная модель пользователя
-- JWT аутентификация
+- JWT аутентификация - после регистрации и активации по email
 - Регистрация и подтверждение email
 
 ### Telegram Bot
@@ -100,22 +97,30 @@ docker-compose up --build
 - Просмотр комментариев
 - Уведомления о сроках выполнения
 
-Ссылка на бота: [@your_bot_name](https://t.me/your_bot_name)
+Ссылка на бота: [@your_bot_name](https://t.me/TodoListMasterBot)
 
 ### Celery Tasks
 
-Celery используется для асинхронных задач:
-
-- Отправка email уведомлений
-- Проверка сроков выполнения задач
+- Проверка сроков начала исполнения задач
 - Отправка уведомлений в Telegram о приближающихся дедлайнах
 
 ## REST API Documentation
 
 ### Аутентификация
 
-#### Получение токена
+#### Создание пользователя
+```http
+POST /api/v1/token/
+Content-Type: application/json
+{
+    "email": "",
+    "username": "",
+    "password": "",
+    "re_password": ""
+}
+```
 
+#### получение токена
 ```http
 POST /api/v1/token/
 Content-Type: application/json
@@ -123,24 +128,6 @@ Content-Type: application/json
 {
     "username": "user",
     "password": "password"
-}
-```
-
-### Пользователи Telegram
-
-#### Получение пользователя
-```http
-GET /api/v1/get_user/{username}/
-```
-
-#### Создание пользователя
-```http
-POST /api/v1/create_tg_user/
-Content-Type: application/json
-
-{
-    "username_id": "username",
-    "chat_id": "chat_id"
 }
 ```
 
@@ -174,24 +161,5 @@ Content-Type: application/json
 
 {
     "category_name": "Category Name"
-}
-```
-
-### Комментарии
-
-#### Список комментариев к задаче
-```http
-GET /api/v1/list-comment/{task_id}/
-```
-
-#### Создание комментария
-```http
-POST /api/v1/create_comment/{task_id}/
-Content-Type: application/json
-
-{
-    "comment": "Comment text",
-    "username_id": "username",
-    "task_id": "task_id"
 }
 ```
