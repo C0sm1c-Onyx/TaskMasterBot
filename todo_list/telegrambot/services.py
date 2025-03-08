@@ -82,7 +82,7 @@ async def create_comment(username: str, task_id: str, comment_text: str) -> bool
             },
             headers={'User-Agent': 'TelegramBot'}
         ) as response:
-            return response.status == 200
+            return response.status == 201
 
 
 async def get_task_comments(task_id: str) -> dict:
