@@ -12,7 +12,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'todo_list.settings')
 django.setup()
 
-from handlers import router
+from .handlers import router
 
 load_dotenv()
 
@@ -25,4 +25,4 @@ async def main():
 
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    asyncio.run(main()) 

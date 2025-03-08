@@ -51,13 +51,13 @@ services:
   telegram_bot:
     build:
       context: .
-    working_dir: /usr/src/app/todo_list/core
+    working_dir: /usr/src/app/todo_list
     environment:
       - PYTHONPATH=/usr/src/app/todo_list
       - DJANGO_SETTINGS_MODULE=todo_list.settings
     volumes:
       - .:/usr/src/app
-    command: python tgbot.py
+    command: python -m telegrambot.bot
     depends_on:
       - taskmasterbot
 
@@ -73,7 +73,6 @@ services:
       - redis
     depends_on:
       - redis
-
     restart: always
 
   celery_beat:
@@ -89,5 +88,4 @@ services:
     depends_on:
       - redis
       - celery_worker
-
     restart: always

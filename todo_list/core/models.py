@@ -1,10 +1,6 @@
 from django.db import models
-from datetime import datetime
 
-
-def generate_custom_id(string: str) -> str:
-    dt = datetime.now()
-    return str(abs(hash(str(dt.timestamp()) + string)))
+from .utils import generate_custom_id
 
 
 class TGbotUser(models.Model):
@@ -55,5 +51,5 @@ class Comment(models.Model):
         app_label = 'core'
 
     def save(self, **kwargs):
-        self.comment_id = generate_custom_id(self.comment_id)
+        self.comment_id = generate_custom_id(self.comment)
         super().save(**kwargs)
