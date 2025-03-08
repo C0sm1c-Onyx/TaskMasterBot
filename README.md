@@ -23,7 +23,7 @@ git clone https://github.com/C0sm1c-Onyx/TaskMasterBot.git
 cd TaskMasterBot
 ```
 
-2. Отредактируйте файл .env в корневой директории проекта:
+2. Отредактируйте три переменные в файле .env в корневой директории проекта:
 ```env
 POSTGRES_DB_NAME=your_db_name
 POSTGRES_USER_NAME=your_db_user
