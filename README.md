@@ -15,16 +15,11 @@ TaskMasterBot - это система управления задачами с T
 
 ## Запуск проекта
 
-### Предварительные требования
-
-- Docker
-- Docker Compose
-
 ### Настройка окружения
 
 1. Клонируйте репозиторий:
 ```bash
-git clone <repository-url>
+git clone [<repository-url>](https://github.com/C0sm1c-Onyx/TaskMasterBot.git)
 cd TaskMasterBot
 ```
 
@@ -46,10 +41,8 @@ docker-compose up --build
 
 Содержит основные модели и логику работы с задачами:
 
-- **TGbotUser**: Модель пользователя Telegram
-- **Category**: Категории задач
-- **Task**: Задачи
-- **Comment**: Комментарии к задачам
+- REST API для телеграм пользователей и отправки уведомлений
+- REST API для категорий, задач и комментариев
 
 ### Auth Users App (Приложение аутентификации)
 
@@ -85,10 +78,10 @@ docker-compose up --build
 POST /api/v1/token/
 Content-Type: application/json
 {
-    "email": "",
-    "username": "",
-    "password": "",
-    "re_password": ""
+    "email": "email-настоящий для подтверждения",
+    "username": "username",
+    "password": "password",
+    "re_password": "re_password"
 }
 ```
 
