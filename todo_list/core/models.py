@@ -1,16 +1,26 @@
 from django.db import models
+from datetime import datetime
 
-from core.utils import generate_custom_id
+
+def generate_custom_id(string: str) -> str:
+    dt = datetime.now()
+    return str(abs(hash(str(dt.timestamp()) + string)))
 
 
 class TGbotUser(models.Model):
     username_id = models.CharField(primary_key=True, unique=True, max_length=100)
     chat_id = models.CharField(max_length=1000)
 
+    class Meta:
+        app_label = 'core'
+
 
 class Category(models.Model):
     category_id = models.CharField(unique=True, primary_key=True, max_length=100)
     category_name = models.CharField(unique=True, max_length=25)
+
+    class Meta:
+        app_label = 'core'
 
     def save(self, **kwargs):
         self.category_id = generate_custom_id(self.category_name)
@@ -27,6 +37,9 @@ class Task(models.Model):
     is_check = models.BooleanField(default=False)
     create_data = models.DateField(auto_now_add=True)
 
+    class Meta:
+        app_label = 'core'
+
     def save(self, **kwargs):
         self.task_id = generate_custom_id(self.task_title)
         super().save(**kwargs)
@@ -37,6 +50,9 @@ class Comment(models.Model):
     comment = models.CharField(max_length=250)
     username = models.ForeignKey('TGbotUser', on_delete=models.CASCADE)
     task = models.ForeignKey('Task', on_delete=models.CASCADE)
+
+    class Meta:
+        app_label = 'core'
 
     def save(self, **kwargs):
         self.comment_id = generate_custom_id(self.comment_id)

@@ -13,6 +13,7 @@ services:
       DB_NAME: ${POSTGRES_DB_NAME}
       DB_USER: ${POSTGRES_USER_NAME}
       DB_PASS: ${POSTGRES_PASSWORD}
+      DJANGO_SETTINGS_MODULE: todo_list.settings
     volumes:
       - .:/usr/src/app
     command: python manage.py runserver 0.0.0.0:8000
@@ -51,6 +52,11 @@ services:
     build:
       context: .
     working_dir: /usr/src/app/todo_list/core
+    environment:
+      - PYTHONPATH=/usr/src/app/todo_list
+      - DJANGO_SETTINGS_MODULE=todo_list.settings
+    volumes:
+      - .:/usr/src/app
     command: python tgbot.py
     depends_on:
       - taskmasterbot
