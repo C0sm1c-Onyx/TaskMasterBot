@@ -83,7 +83,7 @@ Content-Type: application/json
 }
 ```
 
-#### получение токена
+#### Получение токена
 ```http
 POST /api/v1/token/
 Content-Type: application/json
